@@ -63,10 +63,10 @@ process mafft {
         path fastafile
       
     output:
-      path "hepatitis_alignment.fasta"
+      path "${params.accession}_alignment.fasta"
     script:    
         """
-        mafft --auto ${fastafile} > "hepatitis_alignment.fasta"
+        mafft --auto ${fastafile} > "${params.accession}_alignment.fasta"
         """
 }
 
@@ -80,12 +80,12 @@ process trimal {
         path fastafile
       
     output:
-      path "hepatitis_cleaned_up_alignment.fasta"
-      path "hepatitis_report.html"
+      path "${params.accession}_cleaned_up_alignment.fasta"
+      path "${params.accession}_report.html"
 
     script:      
         """
-        trimal -in ${fastafile} -out "hepatitis_cleaned_up_alignment.fasta" -htmlout "hepatitis_report.html" -automated1
+        trimal -in ${fastafile} -out "${params.accession}_cleaned_up_alignment.fasta" -htmlout "${params.accession}_report.html" -automated1
         """
 }
 

@@ -8,7 +8,7 @@ params.accession = "M21012" //M21012 - Reference
 
 
 
-// Reference fasta-file
+// download one reference fasta-file
 process download_reference {
     publishDir params.out, mode: 'copy', overwrite: true
     storeDir params.temp
@@ -22,8 +22,7 @@ process download_reference {
 }
 
 
-
-//one fasta file from collegue
+//download one fasta file from collegue
 process download_collegue_fasta {
     publishDir params.out, mode: 'copy', overwrite: true
     storeDir params.temp
@@ -37,11 +36,31 @@ process download_collegue_fasta {
 }
 
 
+process combine_fasta {
+    publishDir params.out, mode: 'copy', overwrite: true
+    storeDir params.temp
+
+    input:
+        path input1
+        path input2
+
+    output:
+      path "combined_fasta"
+            
+    """
+    cat ${input1} ${input2} > "combined_fasta"
+    """
+}
+
+
+
+
 
 workflow {
 
-download_reference()
-download_collegue_fasta()
+download_reference_ch = download_reference()
+download_collegue_fasta_ch = download_collegue_fasta()
+combine_fasta(download_reference_ch,download_collegue_fasta_ch)
 
 
 }

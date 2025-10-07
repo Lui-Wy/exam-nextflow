@@ -69,7 +69,23 @@ process mafft {
     """
 }
 
+process trimal {
+    publishDir params.out, mode: 'copy', overwrite: true
+    storeDir params.temp
 
+    container "https://depot.galaxyproject.org/singularity/trimal%3A1.5.0--h9948957_2"
+
+    input:
+        path fastafile
+      
+    output:
+      path "cleaned_up_alignment.fasta"
+      path "report.html"
+            
+    """
+    trimal -in ${fastafile} -out "cleaned_up_alignment.fasta" -htmlout "report.html" -automated1
+    """
+}
 
 
 
@@ -80,7 +96,7 @@ download_reference_ch = download_reference()
 download_collegue_fasta_ch = download_collegue_fasta()
 combine_fasta_ch = combine_fasta(download_reference_ch,download_collegue_fasta_ch)
 
-mafft(combine_fasta_ch)
+mafft_ch = mafft(combine_fasta_ch)
 
-
+trimal(mafft_ch)
 }

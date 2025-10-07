@@ -41,8 +41,8 @@ process combine_fasta {
     storeDir params.temp
 
     input:
-        path input1
-        path input2
+      path input1
+      path input2
 
     output:
       path "combined_fasta"
@@ -52,6 +52,24 @@ process combine_fasta {
     """
 }
 
+process mafft {
+    publishDir params.out, mode: 'copy', overwrite: true
+    storeDir params.temp
+
+    container "https://depot.galaxyproject.org/singularity/mafft%3A7.525--h031d066_1"
+
+    input:
+        path fastafile
+      
+    output:
+      path "alignment.fasta"
+            
+    """
+    mafft --auto ${fastafile} > "alignment.fasta"
+    """
+}
+
+
 
 
 
@@ -60,7 +78,9 @@ workflow {
 
 download_reference_ch = download_reference()
 download_collegue_fasta_ch = download_collegue_fasta()
-combine_fasta(download_reference_ch,download_collegue_fasta_ch)
+combine_fasta_ch = combine_fasta(download_reference_ch,download_collegue_fasta_ch)
+
+mafft(combine_fasta_ch)
 
 
 }

@@ -4,6 +4,7 @@ params.temp = "${projectDir}/downloads"
 params.out = "${projectDir}/output"
 params.accession = "M21012" //Hepatitis reference genome
 
+params.input = "${projectDir}/input" // alternative for storing the sequence files of your collegue on your harddrive
 
 
 // download the hepatitis reference fasta-file
@@ -23,15 +24,15 @@ process download_reference {
 
 //download one fasta file from collegue
 process download_collegue_fasta {
-    //publishDir params.out, mode: 'copy', overwrite: true
+    publishDir params.input, mode: 'copy', overwrite: true //stores data locally in "input"-folder, if you have other sequences, put them here: "${projectDir}/input" 
     storeDir params.temp
 
     output:
-      path "collegue_sequences_fasta"
+      path "collegue_sequences.fasta"
 
     script:     
         """
-        wget https://gitlab.com/dabrowskiw/cq-examples/-/raw/master/data/hepatitis_combined.fasta?inline=false -O "collegue_sequences_fasta"
+        wget https://gitlab.com/dabrowskiw/cq-examples/-/raw/master/data/hepatitis_combined.fasta?inline=false -O "collegue_sequences.fasta"
         """
 }
 
@@ -45,11 +46,11 @@ process combine_fasta {
       path input2
 
     output:
-      path "combined_fasta"
+      path "combined.fasta"
 
     script:    
         """
-        cat ${input1} ${input2} > "combined_fasta"
+        cat ${input1} ${input2} > "combined.fasta"
         """
 }
 
@@ -98,5 +99,12 @@ download_collegue_fasta_ch = download_collegue_fasta()
 
 combine_fasta(download_reference_ch,download_collegue_fasta_ch) | mafft | trimal
 
+
+/*alternative with stored data
+
+stored_collegue_fasta_ch = channel.fromPath("${params.input}/*.fasta") 
+combine_fasta(download_reference_ch, stored_collegue_fasta_ch) | mafft | trimal
+
+*/
 
 }
